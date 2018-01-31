@@ -80,7 +80,7 @@ extension ChanelViewController: UICollectionViewDelegate, UICollectionViewDataSo
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         
-        let offset = ceilf(Float(DRAG_INTERVAL) * Float(indexPath.row  - 1))
+        let offset = ceilf(Float(kBigCellHeight) * Float(indexPath.row  - 1))
         if ceilf(Float(collectionView.contentOffset.y)) != offset {
             self.layout?.currentCount = indexPath.row
             collectionView.setContentOffset(CGPoint.init(x: 0, y: Int(offset)), animated: true)
@@ -95,9 +95,9 @@ extension ChanelViewController: UICollectionViewDelegate, UICollectionViewDataSo
         if indexPath.row == 0 {
             return CGSize(width: kScreenWidth, height: 0.0)
         } else if (indexPath.row == 1) {
-            return CGSize(width: kScreenWidth, height: CELL_CURRHEIGHT)
+            return CGSize(width: kScreenWidth, height: kBigCellHeight)
         } else {
-            return CGSize(width: kScreenWidth, height: CELL_HEIGHT)
+            return CGSize(width: kScreenWidth, height: kNormalCellHeight)
         }
     }
     

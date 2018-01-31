@@ -8,25 +8,16 @@
 
 import UIKit
 
-//let CELL_HEIGHT: CGFloat = kScreenWidth * 0.3
-//let CELL_CURRHEIGHT: CGFloat = (kScreenWidth > kScreenHeight ? kScreenHeight : kScreenWidth) * 1.0
-//let TITLE_HEIGHT: CGFloat = 24.0
-//let IMAGEVIEW_ORIGIN_Y: CGFloat = 0.0
-//let IMAGEVIEW_MOVE_DISTANCE: CGFloat = 215.0
-//let DRAG_INTERVAL: CGFloat = CELL_CURRHEIGHT
-//let RECT_RANGE: CGFloat = UIScreen.main.bounds.size.height + 300
-
 class ChanelFlowLayout: UICollectionViewFlowLayout {
     var currentCount = 1
     var count = 0
     override var collectionViewContentSize: CGSize {
-        return CGSize(width: kScreenWidth, height: DRAG_INTERVAL * CGFloat(count) + (kScreenHeight - DRAG_INTERVAL))
+        return CGSize(width: kScreenWidth, height: kBigCellHeight * CGFloat(count) + (kScreenHeight - kBigCellHeight))
     }
-
     
     override init() {
         super.init()
-        itemSize = CGSize(width: kScreenWidth, height: CELL_HEIGHT)
+        itemSize = CGSize(width: kScreenWidth, height: kNormalCellHeight)
         scrollDirection = .vertical
         minimumInteritemSpacing = 0
         minimumLineSpacing = 0
@@ -50,21 +41,21 @@ extension ChanelFlowLayout {
     
     override func layoutAttributesForElements(in rect: CGRect) -> [UICollectionViewLayoutAttributes]? {
         let screen_y = collectionView?.contentOffset.y
-        let current_floor = floorf(Float((screen_y!) / DRAG_INTERVAL)) + 1
-        let current_mod = fmodf(Float(screen_y!), Float(DRAG_INTERVAL))
-        let percent = current_mod / Float(DRAG_INTERVAL)
+        let current_floor = floorf(Float((screen_y!) / kBigCellHeight)) + 1
+        let current_mod = fmodf(Float(screen_y!), Float(kBigCellHeight))
+        let percent = current_mod / Float(kBigCellHeight)
         
         var correctRect: CGRect = .zero
         if current_floor == 0 || current_floor == 1 {
-            correctRect = CGRect(x: 0, y: 0, width: kScreenWidth, height: RECT_RANGE)
+            correctRect = CGRect(x: 0, y: 0, width: kScreenWidth, height: kRectRange)
         } else {
-            correctRect = CGRect(x: 0, y: CELL_HEIGHT * CGFloat(current_floor - 2), width: kScreenWidth, height: RECT_RANGE)
+            correctRect = CGRect(x: 0, y: kNormalCellHeight * CGFloat(current_floor - 2), width: kScreenWidth, height: kRectRange)
         }
         let original = super.layoutAttributesForElements(in: correctRect)
         let array = original
         
-        let riseOfCurrentItem = CELL_CURRHEIGHT - DRAG_INTERVAL
-        let incrementalHeightOfCurrentItem = CELL_CURRHEIGHT - CELL_HEIGHT
+        let riseOfCurrentItem = kBigCellHeight - kBigCellHeight
+        let incrementalHeightOfCurrentItem = kBigCellHeight - kNormalCellHeight
         let offsetOfNextItem = incrementalHeightOfCurrentItem - riseOfCurrentItem
         
         if screen_y! >= 0 {
@@ -72,15 +63,15 @@ extension ChanelFlowLayout {
                 let row = attributes.indexPath.row
                 if row < Int(current_floor) {
                     attributes.zIndex = 7
-                    attributes.frame = CGRect(x: 0, y: DRAG_INTERVAL * CGFloat(row - 1), width: kScreenWidth, height: CELL_CURRHEIGHT)
+                    attributes.frame = CGRect(x: 0, y: kBigCellHeight * CGFloat(row - 1), width: kScreenWidth, height: kBigCellHeight)
                 } else if (row == Int(current_floor)) {
                     attributes.zIndex = 8
-                    attributes.frame = CGRect(x: 0, y: DRAG_INTERVAL * CGFloat(row - 1), width: kScreenWidth, height: CELL_CURRHEIGHT)
+                    attributes.frame = CGRect(x: 0, y: kBigCellHeight * CGFloat(row - 1), width: kScreenWidth, height: kBigCellHeight)
                 } else if (row == Int(current_floor) + 1) {
                     attributes.zIndex = 9
                     let part = (CGFloat(current_floor) - 1) * offsetOfNextItem
                     let partOne = attributes.frame.origin.y + part - riseOfCurrentItem * CGFloat(percent)
-                    let partTwo = CELL_HEIGHT + (CELL_CURRHEIGHT - CELL_HEIGHT) * CGFloat(percent)
+                    let partTwo = kNormalCellHeight + (kBigCellHeight - kNormalCellHeight) * CGFloat(percent)
                     attributes.frame = CGRect(x: 0, y: partOne, width: kScreenWidth, height: partTwo)
                     
                 } else {
@@ -101,96 +92,77 @@ extension ChanelFlowLayout {
                     }
                     let partOne = (current_floor - 1) * Float(offsetOfNextItem)
                     let originY = Float(attributes.frame.origin.y) + partOne + Float(offsetOfNextItem) * percent
-                    attributes.frame = CGRect(x: 0, y: CGFloat(originY), width: kScreenWidth, height: CELL_HEIGHT)
+                    attributes.frame = CGRect(x: 0, y: CGFloat(originY), width: kScreenWidth, height: kNormalCellHeight)
                     
                 }
-                
-                setImageViewOfItem(distance: (screen_y! - attributes.frame.origin.y)/kScreenHeight * IMAGEVIEW_MOVE_DISTANCE, indexPath: attributes.indexPath)
-            }
-        } else {
-            
-            for attributes in array! {
-                if attributes.indexPath.row > 1 {
-                    
-                }
-                setImageViewOfItem(distance: (screen_y! - attributes.frame.origin.y)/kScreenHeight * IMAGEVIEW_MOVE_DISTANCE, indexPath: attributes.indexPath)
+
             }
         }
-        
         
         return array
         
     }
     
-    func setImageViewOfItem(distance: CGFloat, indexPath: IndexPath) {
-        let cell = collectionView?.cellForItem(at: indexPath) as? ChanelCollectionViewCell
-//        cell?.imageViewCenter.frame = CGRect(x: 0, y: IMAGEVIEW_ORIGIN_Y + distance, width: kScreenWidth, height: (cell?.imageViewCenter.frame.size.height)!)
-        cell?.contentView.layoutIfNeeded()
-    }
-    
-    
     override func targetContentOffset(forProposedContentOffset proposedContentOffset: CGPoint, withScrollingVelocity velocity: CGPoint) -> CGPoint {
-        var destination: CGPoint = .zero
-        var positionY: CGFloat
-        let screen_y: CGFloat = (self.collectionView?.contentOffset.y)!
-        var cc: CGFloat
-        var count: CGFloat
+        var destinationPoint: CGPoint = .zero
+        var destinationPointY: CGFloat
+        let contentOffsetY: CGFloat = (self.collectionView?.contentOffset.y)!
+        var realVelocityY: CGFloat
+        var cellLocation: CGFloat
         
-        if screen_y < 0 {
+        if contentOffsetY < 0 {
             return proposedContentOffset
         }
         
         if velocity.y == 0 {
-            count = CGFloat(roundf(Float((proposedContentOffset.y)/DRAG_INTERVAL))) + 1
-            self.currentCount = Int(count)
-            if count == 0 {
-                positionY = 0
+            cellLocation = CGFloat(roundf(Float((proposedContentOffset.y)/kBigCellHeight))) + 1
+            self.currentCount = Int(cellLocation)
+            if cellLocation == 0 {
+                destinationPointY = 0
             } else {
-                positionY = (count - 1) * DRAG_INTERVAL
+                destinationPointY = (cellLocation - 1) * kBigCellHeight
             }
         } else {
             if velocity.y > 1 {
-                cc = 1
+                realVelocityY = 1
             } else if (velocity.y < -1) {
-                cc = -1
+                realVelocityY = -1
             } else {
-                cc = velocity.y
+                realVelocityY = velocity.y
             }
             
             if velocity.y > 0 {
-                count = CGFloat(ceilf(Float((screen_y + cc * DRAG_INTERVAL) / DRAG_INTERVAL)) + 1)
+                cellLocation = CGFloat(ceilf(Float((contentOffsetY + realVelocityY * kBigCellHeight) / kBigCellHeight)) + 1)
             } else {
-                count = CGFloat(floorf(Float((screen_y + cc * DRAG_INTERVAL) / DRAG_INTERVAL)) + 1)
+                cellLocation = CGFloat(floorf(Float((contentOffsetY + realVelocityY * kBigCellHeight) / kBigCellHeight)) + 1)
             }
             
-            if count == 0 {
-                positionY = 0
+            if cellLocation == 0 {
+                destinationPointY = 0
                 currentCount = 1
             } else {
                 if velocity.y > 0 {
-                    count = CGFloat(self.currentCount + 1)
+                    cellLocation = CGFloat(self.currentCount + 1)
                     self.currentCount = self.currentCount + 1
                 } else {
-                    count = CGFloat(self.currentCount - 1)
+                    cellLocation = CGFloat(self.currentCount - 1)
                     self.currentCount = self.currentCount - 1
                 }
-                positionY = (count - 1) * DRAG_INTERVAL
+                destinationPointY = (cellLocation - 1) * kBigCellHeight
             }
         }
-        
-        
-        if positionY < 0 {
-            positionY = 0
+        if destinationPointY < 0 {
+            destinationPointY = 0
         }
-        if positionY > ((self.collectionView?.contentSize.height)! - kScreenHeight) {
-            positionY = ((self.collectionView?.contentSize.height)! - kScreenHeight)
+        if destinationPointY > ((self.collectionView?.contentSize.height)! - kScreenHeight) {
+            destinationPointY = ((self.collectionView?.contentSize.height)! - kScreenHeight)
             self.currentCount = self.currentCount - 1
-            count = CGFloat(self.currentCount)
+            cellLocation = CGFloat(self.currentCount)
         }
         
         self.collectionView?.decelerationRate = 0.1
-        destination = CGPoint(x: 0, y: positionY)
-        return destination
+        destinationPoint = CGPoint(x: 0, y: destinationPointY)
+        return destinationPoint
     }
 }
 
