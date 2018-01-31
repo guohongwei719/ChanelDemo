@@ -93,7 +93,7 @@ extension ChanelViewController: UICollectionViewDelegate, UICollectionViewDataSo
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
         if indexPath.row == 0 {
-            return CGSize(width: kScreenWidth, height: HEADER_HEIGHT)
+            return CGSize(width: kScreenWidth, height: 0.0)
         } else if (indexPath.row == 1) {
             return CGSize(width: kScreenWidth, height: CELL_CURRHEIGHT)
         } else {

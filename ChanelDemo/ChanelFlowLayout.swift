@@ -14,14 +14,13 @@ import UIKit
 //let IMAGEVIEW_ORIGIN_Y: CGFloat = 0.0
 //let IMAGEVIEW_MOVE_DISTANCE: CGFloat = 215.0
 //let DRAG_INTERVAL: CGFloat = CELL_CURRHEIGHT
-//let HEADER_HEIGHT: CGFloat = 0.0
 //let RECT_RANGE: CGFloat = UIScreen.main.bounds.size.height + 300
 
 class ChanelFlowLayout: UICollectionViewFlowLayout {
     var currentCount = 1
     var count = 0
     override var collectionViewContentSize: CGSize {
-        return CGSize(width: kScreenWidth, height: HEADER_HEIGHT + DRAG_INTERVAL * CGFloat(count) + (kScreenHeight - DRAG_INTERVAL))
+        return CGSize(width: kScreenWidth, height: DRAG_INTERVAL * CGFloat(count) + (kScreenHeight - DRAG_INTERVAL))
     }
 
     
@@ -51,15 +50,15 @@ extension ChanelFlowLayout {
     
     override func layoutAttributesForElements(in rect: CGRect) -> [UICollectionViewLayoutAttributes]? {
         let screen_y = collectionView?.contentOffset.y
-        let current_floor = floorf(Float((screen_y! - CGFloat(HEADER_HEIGHT)) / DRAG_INTERVAL)) + 1
-        let current_mod = fmodf(Float(screen_y! - HEADER_HEIGHT), Float(DRAG_INTERVAL))
+        let current_floor = floorf(Float((screen_y!) / DRAG_INTERVAL)) + 1
+        let current_mod = fmodf(Float(screen_y!), Float(DRAG_INTERVAL))
         let percent = current_mod / Float(DRAG_INTERVAL)
         
         var correctRect: CGRect = .zero
         if current_floor == 0 || current_floor == 1 {
             correctRect = CGRect(x: 0, y: 0, width: kScreenWidth, height: RECT_RANGE)
         } else {
-            correctRect = CGRect(x: 0, y: HEADER_HEIGHT + HEADER_HEIGHT + CELL_HEIGHT * CGFloat(current_floor - 2), width: kScreenWidth, height: RECT_RANGE)
+            correctRect = CGRect(x: 0, y: CELL_HEIGHT * CGFloat(current_floor - 2), width: kScreenWidth, height: RECT_RANGE)
         }
         let original = super.layoutAttributesForElements(in: correctRect)
         let array = original
@@ -68,15 +67,15 @@ extension ChanelFlowLayout {
         let incrementalHeightOfCurrentItem = CELL_CURRHEIGHT - CELL_HEIGHT
         let offsetOfNextItem = incrementalHeightOfCurrentItem - riseOfCurrentItem
         
-        if screen_y! >= HEADER_HEIGHT {
+        if screen_y! >= 0 {
             for attributes in array! {
                 let row = attributes.indexPath.row
                 if row < Int(current_floor) {
                     attributes.zIndex = 7
-                    attributes.frame = CGRect(x: 0, y: HEADER_HEIGHT - DRAG_INTERVAL + DRAG_INTERVAL * CGFloat(row), width: kScreenWidth, height: CELL_CURRHEIGHT)
+                    attributes.frame = CGRect(x: 0, y: DRAG_INTERVAL * CGFloat(row - 1), width: kScreenWidth, height: CELL_CURRHEIGHT)
                 } else if (row == Int(current_floor)) {
                     attributes.zIndex = 8
-                    attributes.frame = CGRect(x: 0, y: HEADER_HEIGHT - DRAG_INTERVAL + DRAG_INTERVAL * CGFloat(row), width: kScreenWidth, height: CELL_CURRHEIGHT)
+                    attributes.frame = CGRect(x: 0, y: DRAG_INTERVAL * CGFloat(row - 1), width: kScreenWidth, height: CELL_CURRHEIGHT)
                 } else if (row == Int(current_floor) + 1) {
                     attributes.zIndex = 9
                     let part = (CGFloat(current_floor) - 1) * offsetOfNextItem
@@ -142,12 +141,12 @@ extension ChanelFlowLayout {
         }
         
         if velocity.y == 0 {
-            count = CGFloat(roundf(Float((proposedContentOffset.y - CGFloat(HEADER_HEIGHT))/DRAG_INTERVAL))) + 1
+            count = CGFloat(roundf(Float((proposedContentOffset.y)/DRAG_INTERVAL))) + 1
             self.currentCount = Int(count)
             if count == 0 {
                 positionY = 0
             } else {
-                positionY = HEADER_HEIGHT + (count - 1) * DRAG_INTERVAL
+                positionY = (count - 1) * DRAG_INTERVAL
             }
         } else {
             if velocity.y > 1 {
@@ -159,9 +158,9 @@ extension ChanelFlowLayout {
             }
             
             if velocity.y > 0 {
-                count = CGFloat(ceilf(Float((screen_y + cc * DRAG_INTERVAL - HEADER_HEIGHT) / DRAG_INTERVAL)) + 1)
+                count = CGFloat(ceilf(Float((screen_y + cc * DRAG_INTERVAL) / DRAG_INTERVAL)) + 1)
             } else {
-                count = CGFloat(floorf(Float((screen_y + cc * DRAG_INTERVAL - HEADER_HEIGHT) / DRAG_INTERVAL)) + 1)
+                count = CGFloat(floorf(Float((screen_y + cc * DRAG_INTERVAL) / DRAG_INTERVAL)) + 1)
             }
             
             if count == 0 {
@@ -175,7 +174,7 @@ extension ChanelFlowLayout {
                     count = CGFloat(self.currentCount - 1)
                     self.currentCount = self.currentCount - 1
                 }
-                positionY = HEADER_HEIGHT + (count - 1) * DRAG_INTERVAL
+                positionY = (count - 1) * DRAG_INTERVAL
             }
         }
         

@@ -14,7 +14,6 @@ let TITLE_HEIGHT: CGFloat = 24.0
 let IMAGEVIEW_ORIGIN_Y: CGFloat = 0.0
 let IMAGEVIEW_MOVE_DISTANCE: CGFloat = 215.0
 let DRAG_INTERVAL: CGFloat = CELL_CURRHEIGHT
-let HEADER_HEIGHT: CGFloat = 0.0
 let RECT_RANGE: CGFloat = UIScreen.main.bounds.size.height + CELL_HEIGHT * 2
 
 @objc class ChanelCollectionViewCell: UICollectionViewCell {
@@ -22,7 +21,6 @@ let RECT_RANGE: CGFloat = UIScreen.main.bounds.size.height + CELL_HEIGHT * 2
     @objc lazy var imageViewCenter: UIImageView = {
         let imageView = UIImageView(image: UIImage.init(named: "image_infoCollect1"))
         imageView.frame = CGRect(x: 0, y: IMAGEVIEW_ORIGIN_Y - self.frame.origin.y / kScreenHeight * IMAGEVIEW_MOVE_DISTANCE, width: kScreenWidth, height: kScreenHeight)
-//        imageView.clipsToBounds = true
         imageView.contentMode = .scaleAspectFill
         
         return imageView
