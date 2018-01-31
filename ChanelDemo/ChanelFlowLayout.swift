@@ -54,9 +54,7 @@ extension ChanelFlowLayout {
         let original = super.layoutAttributesForElements(in: correctRect)
         let array = original
         
-        let riseOfCurrentItem = kBigCellHeight - kBigCellHeight
         let incrementalHeightOfCurrentItem = kBigCellHeight - kNormalCellHeight
-        let offsetOfNextItem = incrementalHeightOfCurrentItem - riseOfCurrentItem
         
         if screen_y! >= 0 {
             for attributes in array! {
@@ -69,8 +67,8 @@ extension ChanelFlowLayout {
                     attributes.frame = CGRect(x: 0, y: kBigCellHeight * CGFloat(row - 1), width: kScreenWidth, height: kBigCellHeight)
                 } else if (row == Int(current_floor) + 1) {
                     attributes.zIndex = 9
-                    let part = (CGFloat(current_floor) - 1) * offsetOfNextItem
-                    let partOne = attributes.frame.origin.y + part - riseOfCurrentItem * CGFloat(percent)
+                    let part = (CGFloat(current_floor) - 1) * incrementalHeightOfCurrentItem
+                    let partOne = attributes.frame.origin.y + part
                     let partTwo = kNormalCellHeight + (kBigCellHeight - kNormalCellHeight) * CGFloat(percent)
                     attributes.frame = CGRect(x: 0, y: partOne, width: kScreenWidth, height: partTwo)
                     
@@ -90,8 +88,8 @@ extension ChanelFlowLayout {
                     } else {
                         attributes.zIndex = 0
                     }
-                    let partOne = (current_floor - 1) * Float(offsetOfNextItem)
-                    let originY = Float(attributes.frame.origin.y) + partOne + Float(offsetOfNextItem) * percent
+                    let partOne = (current_floor - 1) * Float(incrementalHeightOfCurrentItem)
+                    let originY = Float(attributes.frame.origin.y) + partOne + Float(incrementalHeightOfCurrentItem) * percent
                     attributes.frame = CGRect(x: 0, y: CGFloat(originY), width: kScreenWidth, height: kNormalCellHeight)
                     
                 }

@@ -85,10 +85,9 @@ extension ChanelViewController: UICollectionViewDelegate, UICollectionViewDataSo
             self.layout?.currentCount = indexPath.row
             collectionView.setContentOffset(CGPoint.init(x: 0, y: Int(offset)), animated: true)
         } else {
+            print("点击了大图哦")
         }
-        
         print("点击了第\(indexPath.row)个")
-
     }
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
